@@ -71,7 +71,7 @@ export default function astroInference(
           }
 
           const markdown = htmlToMarkdown(html);
-          const sourceUrl = `${siteUrl}${pathname}`;
+          const sourceUrl = `${siteUrl}/${pathname}`;
 
           const header = [
             `# ${siteName}`,
