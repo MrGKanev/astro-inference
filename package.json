@@ -11,7 +11,8 @@
       "import": "./dist/index.js"
     },
     "./routes/llms.txt.ts": "./src/routes/llms.txt.ts",
-    "./routes/machine.txt.ts": "./src/routes/machine.txt.ts"
+    "./routes/machine.txt.ts": "./src/routes/machine.txt.ts",
+    "./middleware": "./src/middleware.ts"
   },
   "files": [
     "dist"

@@ -14,7 +14,7 @@ export default function astroInference(
   return {
     name: 'astro-inference',
     hooks: {
-      'astro:config:setup': ({ injectRoute, updateConfig }) => {
+      'astro:config:setup': ({ injectRoute, addMiddleware, updateConfig }) => {
         // Pass options to routes via Astro virtual module config
         updateConfig({
           vite: {
@@ -28,10 +28,11 @@ export default function astroInference(
           entrypoint: 'astro-inference/routes/llms.txt.ts',
         });
 
-        // /[...slug]/machine.txt  - catches all pages
-        injectRoute({
-          pattern: `/[...inferenceSlug]/${machineSuffix}`,
-          entrypoint: 'astro-inference/routes/machine.txt.ts',
+        // Intercept */machine.txt via middleware — more reliable than injectRoute
+        // with rest+literal patterns across Astro versions
+        addMiddleware({
+          entrypoint: 'astro-inference/middleware',
+          order: 'pre',
         });
       },
     },

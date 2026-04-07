@@ -9,7 +9,8 @@ import type { PageEntry } from '../types.js';
  */
 export async function getPageEntries(
   baseUrl: string,
-  exclude: string[] = []
+  exclude: string[] = [],
+  collections?: string[]
 ): Promise<PageEntry[]> {
   const entries: PageEntry[] = [];
 
@@ -23,7 +24,8 @@ export async function getPageEntries(
     // Astro exposes all collection names via import.meta.glob on the host,
     // but we can't enumerate them statically here. Instead we attempt a
     // well-known set of collection names and gracefully skip missing ones.
-    const commonCollections = [
+    // Use explicitly provided collection names, or fall back to common names
+    const commonCollections = collections ?? [
       'blog', 'posts', 'articles', 'pages', 'docs',
       'work', 'projects', 'portfolio', 'news', 'events',
     ];
