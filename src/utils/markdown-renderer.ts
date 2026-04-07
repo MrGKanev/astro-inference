@@ -5,7 +5,11 @@
  * regex-based extraction focused on semantic elements only.
  */
 export function htmlToMarkdown(html: string): string {
-  // Remove <head>, <script>, <style>, <nav>, <footer>, <aside>
+  // Extract <nav> links before removing the element —
+  // LLMs need navigation links to traverse the site
+  const navLinks = extractNavLinks(html);
+
+  // Remove non-semantic elements
   let text = html
     .replace(/<head[\s\S]*?<\/head>/gi, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -24,8 +28,9 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<h5[^>]*>([\s\S]*?)<\/h5>/gi, (_, c) => `##### ${strip(c)}\n\n`)
     .replace(/<h6[^>]*>([\s\S]*?)<\/h6>/gi, (_, c) => `###### ${strip(c)}\n\n`);
 
-  // Convert links
+  // Convert links — skip anchor-only links (e.g. #main-content, #skip)
   text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, label) => {
+    if (isSkipLink(href, strip(label))) return '';
     const cleanLabel = strip(label);
     return cleanLabel ? `[${cleanLabel}](${href})` : href;
   });
@@ -70,11 +75,49 @@ export function htmlToMarkdown(html: string): string {
     .replace(/[ \t]+/g, ' ')
     .trim();
 
+  // Append navigation links so LLMs can traverse the site
+  if (navLinks.length > 0) {
+    text += '\n\n## Navigation\n\n' + navLinks.map(l => `- [${l.label}](${l.href})`).join('\n');
+  }
+
   return text;
 }
 
 function strip(html: string): string {
   return html.replace(/<[^>]+>/g, '').trim();
+}
+
+/** Returns true for accessibility skip-links and fragment-only anchors */
+function isSkipLink(href: string, label: string): boolean {
+  // Pure fragment links like #main-content, #skip, #content
+  if (/^#/.test(href)) return true;
+  // Common skip-link label patterns
+  if (/^skip\s+to|^skip\s+nav/i.test(label)) return true;
+  return false;
+}
+
+interface NavLink { label: string; href: string }
+
+/** Extracts navigation links from <nav> elements, filtering out skip-links */
+function extractNavLinks(html: string): NavLink[] {
+  const links: NavLink[] = [];
+  const seen = new Set<string>();
+
+  const navMatches = html.matchAll(/<nav[\s\S]*?<\/nav>/gi);
+  for (const navMatch of navMatches) {
+    const navHtml = navMatch[0];
+    const anchorMatches = navHtml.matchAll(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi);
+    for (const [, href, rawLabel] of anchorMatches) {
+      const label = strip(rawLabel);
+      if (!label || !href) continue;
+      if (isSkipLink(href, label)) continue;
+      if (seen.has(href)) continue;
+      seen.add(href);
+      links.push({ label, href });
+    }
+  }
+
+  return links;
 }
 
 function decodeEntities(text: string): string {
