@@ -39,15 +39,18 @@ export const GET: APIRoute = async ({ site }) => {
     lines.push('');
   }
 
-  // Machine-readable versions note
+  // Machine-readable versions — list every known page explicitly
   lines.push('## Machine-readable pages');
   lines.push('');
   lines.push(
     'Each page on this site has a plain-text version at `[page-url]/machine.txt`.'
   );
-  lines.push(
-    'Example: `' + baseUrl + '/about/machine.txt`'
-  );
+  lines.push('');
+  for (const entry of entries) {
+    const machineSuffix = options.machineSuffix ?? 'machine.txt';
+    const machineUrl = `${baseUrl}${entry.url.replace(/\/$/, '')}/${machineSuffix}`;
+    lines.push(`- [${entry.title}](${machineUrl})`);
+  }
   lines.push('');
   if (options.attribution !== false) {
     lines.push('---');

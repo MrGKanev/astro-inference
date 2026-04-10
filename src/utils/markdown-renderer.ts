@@ -58,10 +58,10 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, (_, c) => `_${strip(c)}_`)
     .replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, (_, c) => `_${strip(c)}_`);
 
-  // Code
+  // Code — pre must come before code so nested <code> inside <pre> isn't double-processed
   text = text
-    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, (_, c) => `\`${strip(c)}\``)
-    .replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_, c) => `\`\`\`\n${strip(c)}\n\`\`\`\n\n`);
+    .replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_, c) => `\`\`\`\n${strip(c)}\n\`\`\`\n\n`)
+    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, (_, c) => `\`${strip(c)}\``);
 
   // Strip remaining HTML tags
   text = text.replace(/<[^>]+>/g, '');

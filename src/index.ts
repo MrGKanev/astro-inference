@@ -67,7 +67,15 @@ export default function astroInference(
           try {
             html = await readFile(htmlPath, 'utf-8');
           } catch {
-            continue; // not an HTML page (rss, sitemap, etc.)
+            // Astro can also emit segment.html (no trailing slash / directory index)
+            const flatHtmlPath = fileURLToPath(
+              new URL(segment ? `${segment}.html` : 'index.html', dir)
+            );
+            try {
+              html = await readFile(flatHtmlPath, 'utf-8');
+            } catch {
+              continue; // not an HTML page (rss, sitemap, etc.)
+            }
           }
 
           const markdown = htmlToMarkdown(html);
