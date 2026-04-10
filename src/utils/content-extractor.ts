@@ -1,4 +1,5 @@
 import type { PageEntry } from '../types.js';
+import { isExcluded } from './url-utils.js';
 
 /**
  * Builds a flat list of PageEntry objects from Astro content collections.
@@ -62,11 +63,3 @@ export async function getPageEntries(
   return entries;
 }
 
-function isExcluded(url: string, patterns: string[]): boolean {
-  return patterns.some((pattern) => {
-    if (pattern.endsWith('/*')) {
-      return url.startsWith(pattern.slice(0, -2));
-    }
-    return url === pattern;
-  });
-}

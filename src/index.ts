@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import type { AstroInferenceOptions } from './types.js';
 import { htmlToMarkdown } from './utils/markdown-renderer.js';
+import { isExcluded, normalizeSuffix } from './utils/url-utils.js';
 
 export type { AstroInferenceOptions, PageEntry } from './types.js';
 
@@ -11,8 +12,8 @@ export default function astroInference(
 ): AstroIntegration {
   const {
     llmsTxtPath = '/llms.txt',
-    machineSuffix = 'machine.txt',
   } = options;
+  const machineSuffix = normalizeSuffix(options.machineSuffix ?? 'machine.txt');
 
   let siteUrl = '';
 
@@ -106,13 +107,6 @@ export default function astroInference(
       },
     },
   };
-}
-
-function isExcluded(url: string, patterns: string[]): boolean {
-  return patterns.some((pattern) => {
-    if (pattern.endsWith('/*')) return url.startsWith(pattern.slice(0, -2));
-    return url === pattern;
-  });
 }
 
 /** Vite virtual module so routes can read options without importing Node APIs */
