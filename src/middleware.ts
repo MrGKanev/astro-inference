@@ -2,6 +2,8 @@ import type { MiddlewareHandler } from 'astro';
 import { htmlToMarkdown } from './utils/markdown-renderer.js';
 import { isExcluded, normalizeSuffix } from './utils/url-utils.js';
 
+const FETCH_TIMEOUT_MS = 10_000;
+
 // @ts-ignore - virtual module resolved by Vite plugin at runtime
 import { options } from 'virtual:astro-inference/options';
 
@@ -32,8 +34,11 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   let pageHtml: string | null = null;
   for (const pageUrl of candidates) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
       const res = await fetch(pageUrl, {
+        signal: controller.signal,
         headers: { 'X-Astro-Inference': '1', Accept: 'text/html' },
       });
       if (res.ok) {
@@ -42,6 +47,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
       }
     } catch {
       // try next candidate
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

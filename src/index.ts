@@ -99,8 +99,12 @@ export default function astroInference(
             new URL(segment ? `${segment}/${machineSuffix}` : machineSuffix, dir)
           );
 
-          await writeFile(outPath, header + markdown + footer, 'utf-8');
-          count++;
+          try {
+            await writeFile(outPath, header + markdown + footer, 'utf-8');
+            count++;
+          } catch (err) {
+            logger.warn(`Failed to write ${outPath}: ${err instanceof Error ? err.message : err}`);
+          }
         }
 
         logger.info(`Generated ${count} ${machineSuffix} files`);

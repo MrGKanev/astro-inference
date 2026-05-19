@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { htmlToMarkdown } from '../utils/markdown-renderer.js';
+import { isExcluded } from '../utils/url-utils.js';
 
 // @ts-ignore - virtual module resolved by Vite plugin at runtime
 import { options } from 'virtual:astro-inference/options';
@@ -7,8 +8,9 @@ import { options } from 'virtual:astro-inference/options';
 // Must be on-demand (not pre-rendered) — the slug is unknown at build time
 export const prerender = false;
 
+const FETCH_TIMEOUT_MS = 10_000;
+
 export const GET: APIRoute = async ({ params, site, request }) => {
-  console.log('[astro-inference] machine.txt hit, params:', params, 'url:', request.url);
   const slug = params.inferenceSlug ?? '';
   const origin = new URL(request.url).origin;
   const baseUrl = site?.toString().replace(/\/$/, '') ?? origin;
@@ -28,20 +30,30 @@ export const GET: APIRoute = async ({ params, site, request }) => {
   // Fetch the actual page HTML from the running Astro server
   let pageHtml: string;
   try {
-    const res = await fetch(pageUrl, {
-      headers: {
-        // Signal to the Astro app that this is an internal machine request
-        'X-Astro-Inference': '1',
-        Accept: 'text/html',
-      },
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    let res: Response;
+    try {
+      res = await fetch(pageUrl, {
+        signal: controller.signal,
+        headers: {
+          'X-Astro-Inference': '1',
+          Accept: 'text/html',
+        },
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!res.ok) {
       return new Response(`Page not found: ${pageUrl}`, { status: 404 });
     }
 
     pageHtml = await res.text();
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      return new Response(`Timed out fetching page: ${pageUrl}`, { status: 504 });
+    }
     return new Response(`Could not fetch page: ${pageUrl}`, { status: 502 });
   }
 
@@ -71,9 +83,3 @@ export const GET: APIRoute = async ({ params, site, request }) => {
   });
 };
 
-function isExcluded(url: string, patterns: string[]): boolean {
-  return patterns.some((pattern) => {
-    if (pattern.endsWith('/*')) return url.startsWith(pattern.slice(0, -2));
-    return url === pattern;
-  });
-}

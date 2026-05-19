@@ -1,6 +1,9 @@
 export function isExcluded(url: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
-    if (pattern.endsWith('/*')) return url.startsWith(pattern.slice(0, -2));
+    if (pattern.endsWith('/*')) {
+      const prefix = pattern.slice(0, -1); // e.g. "/admin/"
+      return url.startsWith(prefix);
+    }
     return url === pattern;
   });
 }

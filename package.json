@@ -20,6 +20,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build"
   },
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@types/node": "^25.5.2",
     "astro": "^5.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.6"
   }
 }
