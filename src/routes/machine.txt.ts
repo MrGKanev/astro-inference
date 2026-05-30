@@ -27,40 +27,39 @@ export const GET: APIRoute = async ({ params, site, request }) => {
     return new Response('Not found', { status: 404 });
   }
 
-  // Fetch the actual page HTML from the running Astro server
+  // Fetch the actual page HTML from the running Astro server.
+  // Keep the AbortController alive through both fetch AND body read so the
+  // full 10s timeout covers the entire operation (not just the connection).
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
   let pageHtml: string;
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    let res: Response;
-    try {
-      res = await fetch(pageUrl, {
-        signal: controller.signal,
-        headers: {
-          'X-Astro-Inference': '1',
-          Accept: 'text/html',
-        },
-      });
-    } finally {
-      clearTimeout(timeout);
-    }
+    const res = await fetch(pageUrl, {
+      signal: controller.signal,
+      headers: {
+        'X-Astro-Inference': '1',
+        Accept: 'text/html',
+      },
+    });
 
     if (!res.ok) {
-      return new Response(`Page not found: ${pageUrl}`, { status: 404 });
+      return new Response('Page not found', { status: 404 });
     }
 
     pageHtml = await res.text();
   } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      return new Response(`Timed out fetching page: ${pageUrl}`, { status: 504 });
+    if (controller.signal.aborted) {
+      return new Response('Request timed out', { status: 504 });
     }
-    return new Response(`Could not fetch page: ${pageUrl}`, { status: 502 });
+    return new Response('Could not fetch page', { status: 502 });
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const markdown = htmlToMarkdown(pageHtml);
 
   const siteName = options.siteName ?? new URL(baseUrl || 'http://localhost').hostname;
-  const machineSuffix = options.machineSuffix ?? 'machine.txt';
 
   const header = [
     `# ${siteName}`,
@@ -82,4 +81,3 @@ export const GET: APIRoute = async ({ params, site, request }) => {
     },
   });
 };
-

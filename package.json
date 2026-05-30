@@ -43,5 +43,8 @@
     "astro": "^5.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.6"
+  },
+  "dependencies": {
+    "node-html-parser": "^7.1.0"
   }
 }

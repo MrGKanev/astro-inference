@@ -48,7 +48,12 @@ export async function getPageEntries(
           });
         }
       } catch {
-        // Collection doesn't exist in this project - skip silently
+        // getCollection() throws when a collection doesn't exist.
+        // For auto-detected names this is expected; for explicitly provided
+        // names warn so the user knows their config may be wrong.
+        if (collections) {
+          console.warn(`[astro-inference] Collection "${collectionName}" not found or could not be read.`);
+        }
       }
     }
   } catch {

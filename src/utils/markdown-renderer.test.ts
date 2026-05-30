@@ -86,7 +86,8 @@ describe('htmlToMarkdown', () => {
   it('decodes HTML entities', () => {
     const result = htmlToMarkdown('<p>Fish &amp; Chips &mdash; great</p>');
     expect(result).toContain('Fish & Chips');
-    expect(result).toContain('-');
+    // node-html-parser decodes &mdash; to the correct Unicode em dash
+    expect(result).toContain('—');
   });
 
   it('collapses excess whitespace', () => {
