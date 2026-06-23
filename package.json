@@ -1,6 +1,6 @@
 {
   "name": "astro-inference",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Astro integration that auto-generates LLM-friendly text/plain pages and llms.txt for your site",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,21 +9,19 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./routes/llms.txt.ts": "./src/routes/llms.txt.ts",
-    "./routes/machine.txt.ts": "./src/routes/machine.txt.ts",
-    "./middleware": "./src/middleware.ts"
+    }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build"
+    "prepare": "pnpm run build",
+    "prepublishOnly": "pnpm run build && tsc --noEmit && pnpm test"
   },
   "keywords": [
     "astro",

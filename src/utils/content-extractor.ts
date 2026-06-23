@@ -35,7 +35,9 @@ export async function getPageEntries(
       try {
         const items = await getCollection(collectionName as never);
         for (const item of items) {
-          const slug = item.slug ?? item.id;
+          // item.slug (Astro 4) → item.id (Astro 5); strip file extensions from Content Layer ids
+          const rawId: string = (item as any).slug ?? item.id;
+          const slug = rawId.replace(/\.(md|mdx|json|yaml|yml)$/, '');
           const url = `/${collectionName}/${slug}`;
 
           if (isExcluded(url, exclude)) continue;

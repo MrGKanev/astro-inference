@@ -30,19 +30,15 @@ export default function astroInference(
           },
         });
 
-        // Absolute paths so Astro resolves them regardless of install method
-        const llmsEntrypoint = fileURLToPath(new URL('./routes/llms.txt.js', import.meta.url));
-        const middlewareEntrypoint = fileURLToPath(new URL('./middleware.js', import.meta.url));
-
         // /llms.txt — static route, works in both dev and build
         injectRoute({
           pattern: llmsTxtPath,
-          entrypoint: llmsEntrypoint,
+          entrypoint: new URL('./routes/llms.txt.js', import.meta.url),
         });
 
         // Dev mode: middleware intercepts */machine.txt requests on-the-fly
         addMiddleware({
-          entrypoint: middlewareEntrypoint,
+          entrypoint: fileURLToPath(new URL('./middleware.js', import.meta.url)),
           order: 'pre',
         });
       },

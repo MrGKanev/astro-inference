@@ -10,7 +10,7 @@ Adds two routes to any Astro project:
 ## Installation
 
 ```bash
-npm install astro-inference
+pnpm add astro-inference
 ```
 
 ## Setup
