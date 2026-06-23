@@ -1,6 +1,6 @@
 {
   "name": "astro-inference",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Astro integration that auto-generates LLM-friendly text/plain pages and llms.txt for your site",
   "type": "module",
   "main": "./dist/index.js",
