@@ -1,8 +1,9 @@
 {
   "name": "astro-inference",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "description": "Astro integration that auto-generates LLM-friendly text/plain pages and llms.txt for your site",
   "type": "module",
+  "packageManager": "pnpm@11.8.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,12 +34,24 @@
   ],
   "author": "Gabriel Kanev",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrGKanev/astro-inference"
+  },
+  "bugs": {
+    "url": "https://github.com/MrGKanev/astro-inference/issues"
+  },
+  "homepage": "https://github.com/MrGKanev/astro-inference#readme",
   "peerDependencies": {
-    "astro": ">=4.0.0"
+    "astro": "^4.0.0 || ^5.0.0 || ^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.5.2",
-    "astro": "^5.0.0",
+    "astro": "^7.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.6"
   },

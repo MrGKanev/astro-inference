@@ -38,7 +38,7 @@ export default function astroInference(
 
         // Dev mode: middleware intercepts */machine.txt requests on-the-fly
         addMiddleware({
-          entrypoint: fileURLToPath(new URL('./middleware.js', import.meta.url)),
+          entrypoint: new URL('./middleware.js', import.meta.url),
           order: 'pre',
         });
       },
