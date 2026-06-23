@@ -103,4 +103,66 @@ describe('htmlToMarkdown', () => {
     const result = htmlToMarkdown('Just plain text');
     expect(result).toBe('Just plain text');
   });
+
+  it('converts h3 through h6 headings', () => {
+    const result = htmlToMarkdown('<h3>A</h3><h4>B</h4><h5>C</h5><h6>D</h6>');
+    expect(result).toContain('### A');
+    expect(result).toContain('#### B');
+    expect(result).toContain('##### C');
+    expect(result).toContain('###### D');
+  });
+
+  it('converts ordered lists', () => {
+    const result = htmlToMarkdown('<ol><li>First</li><li>Second</li></ol>');
+    expect(result).toContain('- First');
+    expect(result).toContain('- Second');
+  });
+
+  it('converts blockquotes', () => {
+    const result = htmlToMarkdown('<blockquote><p>A wise quote</p></blockquote>');
+    expect(result).toContain('> A wise quote');
+  });
+
+  it('converts <br> to newline', () => {
+    const result = htmlToMarkdown('<p>Line one<br>Line two</p>');
+    expect(result).toContain('Line one');
+    expect(result).toContain('Line two');
+  });
+
+  it('converts <b> and <i> as aliases for strong and em', () => {
+    const result = htmlToMarkdown('<b>Bold</b> and <i>italic</i>');
+    expect(result).toContain('**Bold**');
+    expect(result).toContain('_italic_');
+  });
+
+  it('renders link href when label is empty', () => {
+    const result = htmlToMarkdown('<a href="/about"></a>');
+    expect(result).toContain('/about');
+  });
+
+  it('does not add skip links from nav to Navigation section', () => {
+    const html = '<nav><a href="#content">Skip to content</a><a href="/home">Home</a></nav>';
+    const result = htmlToMarkdown(html);
+    expect(result).toContain('[Home](/home)');
+    expect(result).not.toContain('[Skip to content]');
+  });
+
+  it('omits empty strong and em', () => {
+    const result = htmlToMarkdown('<strong>  </strong><em></em>normal');
+    expect(result).not.toContain('****');
+    expect(result).not.toContain('__');
+    expect(result).toContain('normal');
+  });
+
+  it('handles nested elements inside list items', () => {
+    const result = htmlToMarkdown('<ul><li><strong>Bold</strong> item</li></ul>');
+    expect(result).toContain('**Bold**');
+    expect(result).toContain('- ');
+  });
+
+  it('does not output Navigation section when nav has no valid links', () => {
+    const html = '<nav><a href="#skip">Skip</a></nav><p>Content</p>';
+    const result = htmlToMarkdown(html);
+    expect(result).not.toContain('## Navigation');
+  });
 });

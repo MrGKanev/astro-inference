@@ -43,4 +43,30 @@ describe('normalizeSuffix', () => {
   it('only strips leading slash', () => {
     expect(normalizeSuffix('/foo/bar.txt')).toBe('foo/bar.txt');
   });
+
+  it('returns empty string unchanged', () => {
+    expect(normalizeSuffix('')).toBe('');
+  });
+});
+
+describe('isExcluded — edge cases', () => {
+  it('does not match path that is a prefix of the pattern', () => {
+    expect(isExcluded('/adm', ['/admin'])).toBe(false);
+  });
+
+  it('wildcard matches path with trailing slash', () => {
+    expect(isExcluded('/admin/', ['/admin/*'])).toBe(true);
+  });
+
+  it('wildcard does not match the prefix segment itself', () => {
+    expect(isExcluded('/admin', ['/admin/*'])).toBe(false);
+  });
+
+  it('returns false when path is empty string', () => {
+    expect(isExcluded('', ['/admin'])).toBe(false);
+  });
+
+  it('matches deeply nested paths with wildcard', () => {
+    expect(isExcluded('/admin/users/settings/email', ['/admin/*'])).toBe(true);
+  });
 });
