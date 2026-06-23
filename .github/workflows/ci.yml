@@ -17,9 +17,6 @@ jobs:
           node-version: 22
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: latest
-          run_install: false
 
       - run: pnpm install --frozen-lockfile
 
