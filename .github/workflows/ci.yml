@@ -10,17 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: npm
 
-      - run: npm ci
+      - uses: pnpm/action-setup@v6
+        with:
+          version: latest
+          run_install: false
 
-      - run: npm audit --audit-level=high --omit=dev
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm test
+      - run: pnpm audit --audit-level=high --prod
 
-      - run: npm run build
+      - run: pnpm test
+
+      - run: pnpm run build
