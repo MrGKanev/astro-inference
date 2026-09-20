@@ -16,6 +16,11 @@ export interface AstroInferenceOptions {
   collections?: string[];
   /** Path where llms.txt is served. Default: "/llms.txt" */
   llmsTxtPath?: string;
+  /**
+   * Path where llms-full.txt (full concatenated content of every page) is served.
+   * Default: "/llms-full.txt"
+   */
+  llmsFullTxtPath?: string;
   /** Suffix appended to each page route for the machine version.
    *  Default: "machine.txt"
    *  Example: /about/machine.txt

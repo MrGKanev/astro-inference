@@ -19,6 +19,9 @@ export const GET: APIRoute = async ({ site }) => {
     lines.push(`> ${siteDescription}`);
   }
   lines.push('');
+  const llmsFullTxtPath = options.llmsFullTxtPath ?? '/llms-full.txt';
+  lines.push(`Full-text content of every page: ${baseUrl}${llmsFullTxtPath}`);
+  lines.push('');
 
   // Group entries by collection
   const groups = new Map<string, typeof entries>();
